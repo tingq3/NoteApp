@@ -1,4 +1,5 @@
 import { Dexie, type EntityTable } from "dexie"
+import { DEFAULT_NOTE_COLOR } from "../constants/noteColors"
 
 interface Note {
   id: string
@@ -30,7 +31,7 @@ db.version(2)
       .toCollection()
       .modify((note) => {
         if (!note.color) {
-          note.color = "#ffffff"
+          note.color = DEFAULT_NOTE_COLOR
         }
       })
   })

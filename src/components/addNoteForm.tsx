@@ -4,13 +4,15 @@ import { uiStyles } from "../uiStyles"
 
 export function AddNoteForm() {
   const [title, setTitle] = useState("")
+  const [content, setContent] = useState("")
   const [status, setStatus] = useState("")
 
   async function handleAddNote() {
     try {
-      const createdNote = await addNote(title)
+      const createdNote = await addNote(title, content)
       setStatus(`Note "${createdNote.title}" added`)
       setTitle("")
+      setContent("")
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
       setStatus(`Failed to add note: ${message}`)
@@ -31,7 +33,14 @@ export function AddNoteForm() {
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         onKeyDown={handleKeyDown}
-        placeholder="Take a note..."
+        placeholder="Note title"
+      />
+
+      <textarea
+        className={uiStyles.form.fieldTextArea}
+        value={content}
+        onChange={(e) => setContent(e.target.value)}
+        placeholder="Write your note..."
       />
 
       <button className={uiStyles.form.primaryButton} onClick={handleAddNote}>

@@ -6,10 +6,8 @@ import { NoteList } from "./components/noteList"
 function App() {
   return (
     <div className={uiStyles.layout.appShell}>
-      <header className={`${uiStyles.layout.appContent} mb-5`}>
-        <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl">
-          Simple Notes
-        </h1>
+      <header className={`${uiStyles.layout.appContent} ${uiStyles.layout.appHeader}`}>
+        <h1 className={uiStyles.layout.appTitle}>Simple Notes</h1>
         <p className={uiStyles.layout.appSubtitle}>
           Capture ideas before they drift away
         </p>

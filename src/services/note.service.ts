@@ -1,12 +1,14 @@
 import { db, type Note } from "../db/db"
 import { v4 as uuid } from "uuid"
+import { DEFAULT_NOTE_COLOR } from "../constants/noteColors"
 
 export async function getAllNotes() {
   return db.notes.orderBy("updatedAt").reverse().toArray()
 }
 
-export async function addNote(title: string) {
+export async function addNote(title: string, content: string) {
   const trimmedTitle = title.trim()
+  const trimmedContent = content.trim()
 
   if (!trimmedTitle) {
     throw new Error("Title is required")
@@ -15,8 +17,8 @@ export async function addNote(title: string) {
   const note: Note = {
     id: uuid(),
     title: trimmedTitle,
-    content: "",
-    color: "#ffffff",
+    content: trimmedContent,
+    color: DEFAULT_NOTE_COLOR,
     updatedAt: Date.now(),
   }
 
@@ -24,11 +26,24 @@ export async function addNote(title: string) {
   return note
 }
 
-export async function updateNote(id: string, updates: Partial<Note>) {
-  await db.notes.update(id, {
-    ...updates,
+export async function updateNote(note: Note) {
+  const trimmedTitle = note.title.trim()
+  const trimmedContent = note.content.trim()
+
+  if (!trimmedTitle) {
+    throw new Error("Title is required")
+  }
+
+  const updatedCount = await db.notes.update(note.id, {
+    title: trimmedTitle,
+    content: trimmedContent,
+    color: note.color,
     updatedAt: Date.now(),
   })
+
+  if (updatedCount === 0) {
+    throw new Error("Note not found")
+  }
 }
 
 export async function deleteNote(id: string) {
