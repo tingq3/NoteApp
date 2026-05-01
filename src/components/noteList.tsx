@@ -7,10 +7,14 @@ import {
   NOTE_COLOR_OPTIONS,
 } from "../constants/noteColors"
 import { uiStyles } from "../uiStyles"
-import { NoteCard } from "./noteCard"
 import { NoteColorPalette } from "./noteColorPalette"
 
-export function NoteList() {
+type NoteListProps = {
+  selectedNoteId: string | null
+  onSelectNote: (noteId: string) => void
+}
+
+export function NoteList({ selectedNoteId, onSelectNote }: NoteListProps) {
   const [expandedPaletteId, setExpandedPaletteId] = useState<string | null>(null)
   const [palettePosition, setPalettePosition] = useState({ top: 0, left: 0 })
   const notes = useLiveQuery(() => getAllNotes(), [], [] as Note[])
@@ -27,6 +31,7 @@ export function NoteList() {
   }, [])
 
   function openPalette(noteId: string, event: MouseEvent<HTMLButtonElement>) {
+    event.stopPropagation()
     if (expandedPaletteId === noteId) {
       setExpandedPaletteId(null)
       return
@@ -72,9 +77,9 @@ export function NoteList() {
   if (!notes || notes.length === 0) {
     return (
       <section className={uiStyles.notes.emptyCard}>
-        <h2 className="text-xl font-semibold">No notes yet</h2>
-        <p className="mt-1 text-sm text-stone-500">
-          Your ideas will appear here after you add one.
+        <h2 className="text-sm font-semibold">No notes yet</h2>
+        <p className="mt-1 text-xs text-stone-500">
+          Create one to get started.
         </p>
       </section>
     )
@@ -82,15 +87,55 @@ export function NoteList() {
 
   return (
     <>
-      <section className={uiStyles.notes.grid} aria-label="All notes">
+      <section className={uiStyles.notes.grid} aria-label="Notes list">
         {notes.map((note) => (
-          <NoteCard
+          <div
             key={note.id}
-            note={note}
-            onUpdateNote={(nextNote) => updateNote(nextNote)}
-            onDeleteNote={(id) => deleteNote(id)}
-            onOpenPalette={openPalette}
-          />
+            onClick={() => onSelectNote(note.id)}
+            className={
+              selectedNoteId === note.id
+                ? uiStyles.notes.noteSidebarItemSelected
+                : uiStyles.notes.noteSidebarItem
+            }
+            style={{
+              borderLeftWidth: "4px",
+              borderLeftColor: note.color || DEFAULT_NOTE_COLOR,
+            }}
+          >
+            <h3 className="font-semibold text-stone-900 truncate">{note.title}</h3>
+            <p className="text-xs text-stone-600 truncate mt-1">
+              {note.content ? note.content.substring(0, 50) : "No content"}
+            </p>
+            <div className="flex items-center justify-between mt-2 gap-1">
+              <span className="text-xs text-stone-500">
+                {new Date(note.updatedAt).toLocaleDateString()}
+              </span>
+              <button
+                className={uiStyles.notes.iconActionButton}
+                type="button"
+                aria-label="Change note color"
+                onClick={(event) => openPalette(note.id, event)}
+                style={{ height: "20px", width: "20px" }}
+              >
+                <div
+                  className="h-2 w-2 rounded-full"
+                  style={{ backgroundColor: note.color || DEFAULT_NOTE_COLOR }}
+                ></div>
+              </button>
+              <button
+                className={uiStyles.notes.iconActionButton}
+                onClick={(e) => {
+                  e.stopPropagation()
+                  void deleteNote(note.id)
+                }}
+                type="button"
+                aria-label="Delete note"
+                style={{ height: "20px", width: "20px", padding: "2px" }}
+              >
+                <span className="text-xs">×</span>
+              </button>
+            </div>
+          </div>
         ))}
       </section>
 

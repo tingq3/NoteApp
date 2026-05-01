@@ -1,22 +1,36 @@
 
+import { useState } from "react"
 import { uiStyles } from "./uiStyles"
 import { AddNoteForm } from "./components/addNoteForm"
 import { NoteList } from "./components/noteList"
+import { NoteDetail } from "./components/noteDetail.tsx"
 
 function App() {
+  const [selectedNoteId, setSelectedNoteId] = useState<string | null>(null)
+
   return (
     <div className={uiStyles.layout.appShell}>
-      <header className={`${uiStyles.layout.appContent} ${uiStyles.layout.appHeader}`}>
-        <h1 className={uiStyles.layout.appTitle}>Simple Notes</h1>
-        <p className={uiStyles.layout.appSubtitle}>
-          Capture ideas before they drift away
-        </p>
-      </header>
+      <div className={uiStyles.layout.twoColumnLayout}>
+        {/* Sidebar */}
+        <aside className={uiStyles.layout.sidebar}>
+          <div className={uiStyles.layout.sidebarHeader}>
+            <h1 className={uiStyles.layout.appTitle}>Notes</h1>
+          </div>
+          <AddNoteForm onNoteAdded={setSelectedNoteId} />
+          <NoteList selectedNoteId={selectedNoteId} onSelectNote={setSelectedNoteId} />
+        </aside>
 
-      <main className={uiStyles.layout.appContent}>
-        <AddNoteForm />
-        <NoteList />
-      </main>
+        {/* Main Content */}
+        <main className={uiStyles.layout.mainContent}>
+          {selectedNoteId ? (
+            <NoteDetail noteId={selectedNoteId} />
+          ) : (
+            <div className={uiStyles.layout.emptyState}>
+              <p className={uiStyles.layout.emptyStateText}>Select a note to view and edit</p>
+            </div>
+          )}
+        </main>
+      </div>
     </div>
   )
 }

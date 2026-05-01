@@ -2,7 +2,11 @@ import { useState, type KeyboardEvent } from "react"
 import { addNote } from "../services/note.service"
 import { uiStyles } from "../uiStyles"
 
-export function AddNoteForm() {
+type AddNoteFormProps = {
+  onNoteAdded?: (noteId: string) => void
+}
+
+export function AddNoteForm({ onNoteAdded }: AddNoteFormProps) {
   const [title, setTitle] = useState("")
   const [content, setContent] = useState("")
   const [status, setStatus] = useState("")
@@ -13,6 +17,11 @@ export function AddNoteForm() {
       setStatus(`Note "${createdNote.title}" added`)
       setTitle("")
       setContent("")
+      if (onNoteAdded) {
+        onNoteAdded(createdNote.id)
+      }
+      // Clear status after 2 seconds
+      setTimeout(() => setStatus(""), 2000)
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error)
       setStatus(`Failed to add note: ${message}`)
